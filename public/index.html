@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SilentSLA - Enterprise Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { neutral: { 850: '#1f1f1f', 900: '#111', 950: '#0a0a0a' } }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #000; color: #ededed; }
+    .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+    
+    .tab-active { color: #fff; background: rgba(255, 255, 255, 0.1); }
+    .tab-inactive { color: #a3a3a3; }
+    .tab-inactive:hover { color: #fff; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-sans">
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]">S</div>
+          <span class="font-medium tracking-tight text-white">SilentSLA</span>
+        </div>
+        <div class="flex gap-1" id="navTabs">
+          <button onclick="switchTab('overview')" class="tab-btn tab-active px-3 py-1.5 rounded-md text-sm transition-all" data-tab="overview">Overview</button>
+          <button onclick="switchTab('telemetry')" class="tab-btn tab-inactive px-3 py-1.5 rounded-md text-sm transition-all" data-tab="telemetry">Telemetry Vault</button>
+          <button onclick="switchTab('claims')" class="tab-btn tab-inactive px-3 py-1.5 rounded-md text-sm transition-all" data-tab="claims">Claim Simulator</button>
+        </div>
+      </div>
+      <button onclick="resetDemo()" class="text-xs text-red-400 hover:text-red-300 border border-red-900/50 bg-red-950/20 hover:bg-red-900/40 px-3 py-1.5 rounded-md transition-colors flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Reset State
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-8">
+    
+    <!-- OVERVIEW TAB -->
+    <div id="tab-overview" class="tab-pane block space-y-6">
+      <div class="flex justify-between items-end mb-4">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight text-white">Executive Summary</h1>
+          <p class="text-sm text-neutral-400 mt-1">Real-time financial impact and SLA compliance metrics.</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card rounded-xl p-5">
+          <div class="text-sm font-medium text-neutral-400 mb-1">Recovered Capital (Est)</div>
+          <div class="text-3xl font-semibold tracking-tight text-white flex items-baseline gap-2">
+            <span id="metric-capital">$0</span>
+            <span class="text-xs font-normal text-emerald-400">+ YTD</span>
+          </div>
+        </div>
+        <div class="glass-card rounded-xl p-5">
+          <div class="text-sm font-medium text-neutral-400 mb-1">Current SLA Compliance</div>
+          <div class="text-3xl font-semibold tracking-tight text-white flex items-baseline gap-2">
+            <span id="metric-compliance">100%</span>
+            <span class="text-xs font-normal text-neutral-500">Target: 99.9%</span>
+          </div>
+        </div>
+        <div class="glass-card rounded-xl p-5">
+          <div class="text-sm font-medium text-neutral-400 mb-1">Active Claims / Audits</div>
+          <div class="text-3xl font-semibold tracking-tight text-white flex items-baseline gap-2">
+            <span id="metric-audits">0</span>
+            <span class="text-xs font-normal text-indigo-400">Processing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-6 mt-8 border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+        <h3 class="text-sm font-semibold text-white mb-4">System Status Indicator</h3>
+        <div class="h-2 w-full bg-neutral-900 rounded-full overflow-hidden flex">
+          <div class="h-full bg-emerald-500 w-[99.9%]"></div>
+          <div class="h-full bg-red-500 w-[0.1%]"></div>
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-neutral-500">
+          <span>Operational Availability</span>
+          <span>Breach Threshold Marker</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELEMETRY TAB -->
+    <div id="tab-telemetry" class="tab-pane hidden space-y-6">
+      <div class="flex justify-between items-end mb-4">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight text-white">Telemetry & Memory Vault</h1>
+          <p class="text-sm text-neutral-400 mt-1">Deep-dive audit logs and real-time retain vectors.</p>
+        </div>
+        <button onclick="injectOutage()" class="bg-white text-black hover:bg-neutral-200 px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          Inject 15m Anomaly
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Policies -->
+        <div class="glass-card rounded-xl border border-white/10 overflow-hidden flex flex-col">
+          <div class="px-5 py-4 border-b border-white/10 bg-white/[0.02]">
+            <h3 class="text-sm font-semibold text-white">Active SLA Vectors</h3>
+          </div>
+          <div class="p-5 flex-1 space-y-4" id="telemetry-policies">
+            <!-- Populated -->
+          </div>
+        </div>
+
+        <!-- Incidents Log -->
+        <div class="lg:col-span-2 glass-card rounded-xl border border-white/10 overflow-hidden flex flex-col">
+          <div class="px-5 py-4 border-b border-white/10 bg-white/[0.02] flex justify-between items-center">
+            <h3 class="text-sm font-semibold text-white">Event Log</h3>
+            <span class="text-xs text-neutral-500 font-mono" id="downtime-tracker">0 / 0 mins tracked</span>
+          </div>
+          <div class="p-0 flex-1 overflow-y-auto max-h-[600px]">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+              <thead class="text-xs text-neutral-500 bg-black/40 border-b border-white/5 sticky top-0">
+                <tr>
+                  <th class="px-5 py-3 font-medium">Timestamp</th>
+                  <th class="px-5 py-3 font-medium">Duration</th>
+                  <th class="px-5 py-3 font-medium">Source Evidence</th>
+                  <th class="px-5 py-3 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody id="telemetry-incidents" class="divide-y divide-white/5">
+                <!-- Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLAIMS TAB -->
+    <div id="tab-claims" class="tab-pane hidden space-y-6">
+      <div class="flex justify-between items-end mb-4">
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight text-white">Vendor Claim Simulator</h1>
+          <p class="text-sm text-neutral-400 mt-1">Autonomous negotiation, contract extraction, and response histories.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Extractor Sidebar -->
+        <div class="glass-card rounded-xl border border-white/10 p-5 h-fit">
+          <h3 class="text-sm font-semibold text-white mb-3">AI Contract Parsing</h3>
+          <p class="text-xs text-neutral-400 mb-4">Ingest raw vendor terms to generate tracking vectors.</p>
+          <textarea id="contractText" rows="6" class="w-full text-xs font-mono bg-black/50 border border-white/10 rounded-md p-3 text-neutral-300 placeholder-neutral-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none mb-3" placeholder="e.g. AWS agrees to provide 99.99% monthly uptime for the Relational Database Service..."></textarea>
+          <button id="extractBtn" onclick="extractContract()" class="w-full bg-white text-black hover:bg-neutral-200 py-2 rounded-md text-sm font-medium transition-colors">
+            Process Contract
+          </button>
+        </div>
+
+        <!-- Claim Feed -->
+        <div class="lg:col-span-2 space-y-4" id="claims-feed">
+          <!-- Populated -->
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 transform translate-y-20 opacity-0 transition-all duration-300 glass-card px-4 py-3 rounded-lg flex items-center gap-3 shadow-xl z-50">
+    <div id="toast-icon" class="text-emerald-400"></div>
+    <div id="toast-msg" class="text-sm font-medium text-white">Success!</div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
